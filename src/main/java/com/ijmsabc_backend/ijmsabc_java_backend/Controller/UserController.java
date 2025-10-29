@@ -57,10 +57,11 @@ public class UserController {
         Optional<User> existingUserOpt = userRepository.findById(id);
         if (existingUserOpt.isPresent()) {
             User existingUser = existingUserOpt.get();
-            existingUser.setName(updatedUser.getName());
-            existingUser.setEmail(updatedUser.getEmail());
-            existingUser.setPhone(updatedUser.getPhone());
-            existingUser.setPassword(updatedUser.getPassword());
+            
+//            existingUser.setName(updatedUser.getName());
+//            existingUser.setEmail(updatedUser.getEmail());
+//            existingUser.setPhone(updatedUser.getPhone());
+//            existingUser.setPassword(updatedUser.getPassword());
             return userRepository.save(existingUser);
         } else {
             throw new RuntimeException("User not found with id " + id);
