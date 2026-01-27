@@ -1,7 +1,9 @@
+
+
+
+
 package com.ijmsabc_backend.ijmsabc_java_backend.Controller;
 
-
-import java.io.IOException;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
@@ -14,22 +16,17 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.ijmsabc_backend.ijmsabc_java_backend.Entity.Pdf;
 import com.ijmsabc_backend.ijmsabc_java_backend.Service.PdfService;
 
-
 @RestController
 @RequestMapping("/api/ijmsabc/pdfs")
 @CrossOrigin(origins = {
-    "https://www.ijmsabc.org", 
-    "http://localhost:5173"    
+        "https://www.ijmsabc.org",
+        "http://localhost:5173"
 })
-
 public class PdfController {
-
-
 
     private final PdfService pdfService;
 
@@ -37,60 +34,74 @@ public class PdfController {
         this.pdfService = pdfService;
     }
 
-    // @PostMapping("/upload")
-    // public ResponseEntity<Pdf> uploadPdf(
-    //         @RequestParam("title") String title,
-    //         @RequestParam("pdf_doc") MultipartFile file,
-    //         @RequestParam("volume") String volume,
-    //         @RequestParam("issue") String issue,
-    //         @RequestParam("year") String year,
-    //         @RequestParam("type") String type
-    // ) throws IOException {
-    //     Pdf pdf = new Pdf(title, file.getBytes(), volume, issue, year, type);
-    //     return ResponseEntity.ok(pdfService.savePdf(pdf));
-    // }
-
-
-
+    // ===================== UPLOAD PDF =====================
     @PostMapping("/upload")
-public ResponseEntity<Pdf> uploadPdf(
-        @RequestParam("title") String title,
-        @RequestParam("pdf_doc") MultipartFile file,
-        @RequestParam("volume") String volume,
-        @RequestParam("issueNo") String issueNo,
-        @RequestParam("year") String year,
-        @RequestParam("type") String type,
-        @RequestParam("author") String author
-) throws IOException {
-    Pdf pdf = new Pdf(title, file.getBytes(), volume, issueNo, year, type, author);
-    return ResponseEntity.ok(pdfService.savePdf(pdf));
-}
+    public ResponseEntity<Pdf> uploadPdf(
+            @RequestParam("title") String title,
+            @RequestParam("pdf_link") String pdfLink,
+            @RequestParam("volume") String volume,
+            @RequestParam("issueNo") String issueNo,
+            @RequestParam("year") String year,
+            @RequestParam("type") String type,
+            @RequestParam("author") String author,
+            @RequestParam("source") String source,
+            @RequestParam("doi") String doi
+    ) {
 
-@PutMapping("/{id}")
-public ResponseEntity<Pdf> updatePdf(
-        @PathVariable Long id,
-        @RequestParam("title") String title,
-        @RequestParam("volume") String volume,
-        @RequestParam("issueNo") String issueNo,
-        @RequestParam("year") String year,
-        @RequestParam("type") String type,
-        @RequestParam("author") String author,
-        @RequestParam(value = "pdf_doc", required = false) MultipartFile pdfDoc
-) throws IOException {
-    byte[] fileBytes = null;
-    if (pdfDoc != null && !pdfDoc.isEmpty()) {
-        fileBytes = pdfDoc.getBytes();
+        Pdf pdf = new Pdf(
+                title,
+                pdfLink,
+                volume,
+                issueNo,
+                year,
+                type,
+                author,
+                source,
+                doi
+        );
+
+        return ResponseEntity.ok(pdfService.savePdf(pdf));
     }
-    Pdf updatedPdf = new Pdf(title, fileBytes, volume, issueNo, year, type,author);
-    return ResponseEntity.ok(pdfService.updatePdf(id, updatedPdf));
-}
 
+    // ===================== UPDATE PDF =====================
+    @PutMapping("/{id}")
+    public ResponseEntity<Pdf> updatePdf(
+            @PathVariable Long id,
+            @RequestParam("title") String title,
+            @RequestParam("volume") String volume,
+            @RequestParam("issueNo") String issueNo,
+            @RequestParam("year") String year,
+            @RequestParam("type") String type,
+            @RequestParam("author") String author,
+            @RequestParam("source") String source,
+             @RequestParam("doi") String doi,
+            @RequestParam(value = "pdf_link", required = false) String pdfLink
+    ) {
 
+        Pdf updatedPdf = new Pdf();
+        updatedPdf.setTitle(title);
+        updatedPdf.setVolume(volume);
+        updatedPdf.setIssueNo(issueNo);
+        updatedPdf.setYear(year);
+        updatedPdf.setType(type);
+        updatedPdf.setAuthor(author);
+        updatedPdf.setSource(source);
+        updatedPdf.setDoi(doi);
+
+        if (pdfLink != null && !pdfLink.isEmpty()) {
+            updatedPdf.setPdfLink(pdfLink);
+        }
+
+        return ResponseEntity.ok(pdfService.updatePdf(id, updatedPdf));
+    }
+
+    // ===================== GET ALL =====================
     @GetMapping
     public List<Pdf> getAllPdfs() {
         return pdfService.getAllPdfs();
     }
 
+    // ===================== GET BY ID =====================
     @GetMapping("/{id}")
     public ResponseEntity<Pdf> getPdfById(@PathVariable Long id) {
         return pdfService.getPdfById(id)
@@ -98,56 +109,12 @@ public ResponseEntity<Pdf> updatePdf(
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // @PutMapping("/{id}")
-    // public ResponseEntity<Pdf> updatePdf(
-    //         @PathVariable Long id,
-    //         @RequestParam("title") String title,
-    //         @RequestParam("pdf_doc") MultipartFile file,
-    //         @RequestParam("volume") String volume,
-    //         @RequestParam("issue") String issue,
-    //         @RequestParam("year") String year,
-    //         @RequestParam("type") String type
-    // ) throws IOException {
-    //     Pdf updatedPdf = new Pdf(title, file.getBytes(), volume, issue, year, type);
-    //     return ResponseEntity.ok(pdfService.updatePdf(id, updatedPdf));
-    // }
-
-//     @PutMapping("/{id}")
-// public ResponseEntity<Pdf> updatePdf(
-//         @PathVariable Long id,
-//         @RequestParam("title") String title,
-//         @RequestParam("volume") String volume,
-//         @RequestParam("issue") String issue,
-//         @RequestParam("year") String year,
-//         @RequestParam("type") String type,
-//         @RequestParam(value = "pdf_doc", required = false) MultipartFile pdfDoc
-// ) throws IOException {
-    
-//     byte[] fileBytes = null;
-//     if (pdfDoc != null && !pdfDoc.isEmpty()) {
-//         fileBytes = pdfDoc.getBytes();
-//     }
-
-//     Pdf updatedPdf = new Pdf(title, fileBytes, volume, issue, year, type);
-//     return ResponseEntity.ok(pdfService.updatePdf(id, updatedPdf));
-// }
-
-@GetMapping("/{id}/file")
-public ResponseEntity<byte[]> downloadPdf(@PathVariable Long id) {
-    return pdfService.getPdfById(id)
-            .map(pdf -> ResponseEntity.ok()
-                    .header("Content-Disposition", "inline; filename=\"" + pdf.getTitle() + ".pdf\"")
-                    .header("Content-Type", "application/pdf")
-                    .body(pdf.getPdfDoc()))
-            .orElse(ResponseEntity.notFound().build());
-}
 
 
-
+    // ===================== DELETE =====================
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePdf(@PathVariable Long id) {
         pdfService.deletePdf(id);
         return ResponseEntity.noContent().build();
     }
 }
-

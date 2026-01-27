@@ -1,0 +1,17 @@
+{
+    "borderColor": "#003366",
+    "borderWidth": 3,
+    "titleColor": "#002b5c",
+    "textColor": "#000000",
+    "highlightColor": "#800000",
+    "fontFamily": "TIMES",
+    "headerFontSize": 26,
+    "subHeaderFontSize": 18,
+    "bodyFontSize": 12,
+    "recipientFontSize": 22,
+    "titleFontSize": 16,
+    "signatureFontSize": 12,
+    "editorFontSize": 11,
+    "pageMargin": 40
+
+}
