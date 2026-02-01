@@ -29,28 +29,27 @@ public class PdfService {
         return pdfRepository.findById(id);
     }
 
+    // ✅ Correct Update (File Updates Only If New File Provided)
     public Pdf updatePdf(Long id, Pdf updatedPdf) {
-        return pdfRepository.findById(id)
-                .map(existingPdf -> {
 
-                    existingPdf.setTitle(updatedPdf.getTitle());
-                    existingPdf.setVolume(updatedPdf.getVolume());
-                    existingPdf.setIssueNo(updatedPdf.getIssueNo());
-                    existingPdf.setYear(updatedPdf.getYear());
-                    existingPdf.setType(updatedPdf.getType());
-                    existingPdf.setAuthor(updatedPdf.getAuthor());
-                    existingPdf.setSource(updatedPdf.getSource());
-                     existingPdf.setDoi(updatedPdf.getDoi());
+        Pdf existingPdf = pdfRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("PDF not found with id: " + id));
 
-                    // 🔑 Only replace link if new link provided
-                    if (updatedPdf.getPdfLink() != null && !updatedPdf.getPdfLink().isEmpty()) {
-                        existingPdf.setPdfLink(updatedPdf.getPdfLink());
-                    }
+        existingPdf.setTitle(updatedPdf.getTitle());
+        existingPdf.setVolume(updatedPdf.getVolume());
+        existingPdf.setIssueNo(updatedPdf.getIssueNo());
+        existingPdf.setYear(updatedPdf.getYear());
+        existingPdf.setType(updatedPdf.getType());
+        existingPdf.setAuthor(updatedPdf.getAuthor());
+        existingPdf.setDoi(updatedPdf.getDoi());
+        existingPdf.setSource(updatedPdf.getSource());
 
-                    return pdfRepository.save(existingPdf);
-                })
-                .orElseThrow(() ->
-                        new RuntimeException("Pdf not found with id: " + id));
+        // ✅ Update file only if provided
+        if (updatedPdf.getPdfDoc() != null) {
+            existingPdf.setPdfDoc(updatedPdf.getPdfDoc());
+        }
+
+        return pdfRepository.save(existingPdf);
     }
 
     public void deletePdf(Long id) {
