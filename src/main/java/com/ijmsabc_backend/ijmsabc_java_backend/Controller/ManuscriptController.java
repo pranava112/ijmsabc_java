@@ -138,7 +138,7 @@ public class ManuscriptController {
             @RequestParam("title") String title,
             @RequestParam("abst") String abst,
             @RequestParam("kwords") String kwords,
-            @RequestParam("source") String source,
+            @RequestParam("source") String source,//
             @RequestParam("pdf_doc") MultipartFile pdfDoc
     ) throws IOException {
         Manuscript manuscript = new Manuscript(name, email, phone, title, abst, kwords, pdfDoc.getBytes(),source);

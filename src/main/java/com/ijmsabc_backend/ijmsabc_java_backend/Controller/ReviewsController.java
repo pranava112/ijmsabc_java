@@ -39,9 +39,10 @@ public class ReviewsController {
             @RequestParam("designation") String designation,
             @RequestParam("email") String email,
             @RequestParam("address") String address,
-            @RequestParam("cv") MultipartFile file) throws IOException {
+            @RequestParam("cv") MultipartFile file,
+            @RequestParam("source") String source) throws IOException {
 
-        Reviews reviews = new Reviews(name, designation, email, address, file.getBytes());
+        Reviews reviews = new Reviews(name, designation, email, address, file.getBytes(),source);
         Reviews savedReviews = reviewsRepository.save(reviews);
         return ResponseEntity.ok(savedReviews);
     }

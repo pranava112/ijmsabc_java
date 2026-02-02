@@ -19,4 +19,5 @@ public class Contact {
     private String phone;
     private String address;
     private String message;
+    private String source;
 }

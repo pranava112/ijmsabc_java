@@ -112,7 +112,7 @@ public class Manuscript {
     private byte[] pdfDoc;
 
       @Column(name = "source", nullable = false)
-    private String source;
+    private String source;//
 
     public Manuscript() {}
 

@@ -27,18 +27,20 @@ public class Membership {
     private String membershiptype;
     private String email;
     private String address;
+    private String source;
 
     @Lob
     @Column(columnDefinition = "LONGBLOB")
     private byte[] cv;
 
     // Parameterized constructor
-    public Membership(String name, String designation,String membershiptype, String email, String address, byte[] cv) {
+    public Membership(String name, String designation,String membershiptype, String email, String address, byte[] cv,String source) {
         this.name = name;
         this.designation = designation;
         this.membershiptype = membershiptype;
         this.email = email;
         this.address = address;
         this.cv = cv;
+        this.source=source;
     }
 }

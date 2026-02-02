@@ -25,17 +25,19 @@ public class Reviews {
     private String designation;
     private String email;
     private String address;
+    private String source;
 
     @Lob
     @Column(columnDefinition = "LONGBLOB")
     private byte[] cv;
 
     // Parameterized constructor
-    public Reviews(String name, String designation, String email, String address, byte[] cv) {
+    public Reviews(String name, String designation, String email, String address, byte[] cv,String source) {
         this.name = name;
         this.designation = designation;
         this.email = email;
         this.address = address;
         this.cv = cv;
+        this.source=source;
     }
 }

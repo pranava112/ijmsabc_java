@@ -41,9 +41,10 @@ public class EditorialboardController {
             @RequestParam("designation") String designation,
             @RequestParam("email") String email,
             @RequestParam("address") String address,
+            @RequestParam("source") String source,
             @RequestParam("cv") MultipartFile file) throws IOException {
 
-        Editorialboard editorialboard = new Editorialboard(name, designation, email, address, file.getBytes());
+        Editorialboard editorialboard = new Editorialboard(name, designation, email, address, file.getBytes(),source);
         Editorialboard savedEditorialboard = editorialboardRepository.save(editorialboard);
         return ResponseEntity.ok(savedEditorialboard);
     }
