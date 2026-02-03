@@ -3,7 +3,6 @@ package com.ijmsabc_backend.ijmsabc_java_backend.Controller;
 import java.io.IOException;
 import java.util.List;
 
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -27,153 +26,109 @@ import com.ijmsabc_backend.ijmsabc_java_backend.Service.PdfService;
         "https://www.ijmsabc.org",
         "https://api.ijmsabc.org"
 })
+
 public class PdfController {
 
-    private final PdfService pdfService;
+    private final PdfService service;
 
-    public PdfController(PdfService pdfService) {
-        this.pdfService = pdfService;
+    public PdfController(PdfService service) {
+        this.service = service;
     }
 
-    // =====================================================
-    // ✅ 1. Upload PDF
-    // =====================================================
-    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    // ✅ Upload PDF
+    @PostMapping(value="/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> uploadPdf(
             @RequestParam("title") String title,
             @RequestParam("volume") String volume,
-            @RequestParam("issueNo") String issueNo,
-            @RequestParam("pubYear") String pubYear,
-            @RequestParam("issueType") String issueType,
+            @RequestParam("issue_no") String issueNo,
+            @RequestParam("pub_year") String pubYear,
+            @RequestParam("issue_type") String issueType,
             @RequestParam("author") String author,
             @RequestParam("doi") String doi,
             @RequestParam("source") String source,
             @RequestParam("pdf_doc") MultipartFile pdfDoc
-    ) {
-        // try {
-        //     if (pdfDoc.isEmpty()) return ResponseEntity.badRequest().body("PDF File is required!");
-        //     if (!pdfDoc.getContentType().equals("application/pdf"))
-        //         return ResponseEntity.badRequest().body("Only PDF files are allowed!");
+    ) throws IOException {
 
-        //     Pdf pdf = new Pdf(title, volume, issueNo, pubYear, issueType, author, doi, source, pdfDoc.getBytes());
-        //     Pdf savedPdf = pdfService.savePdf(pdf);
+        // ✅ File Extension Validation
+        String filename = pdfDoc.getOriginalFilename();
 
-        //     return ResponseEntity.ok(savedPdf);
-
-        // } catch (IOException e) {
-        //     return ResponseEntity.status(500).body("File Upload Failed: " + e.getMessage());
-        // } catch (Exception e) {
-        //     return ResponseEntity.status(500).body("Unexpected Error: " + e.getMessage());
-        // }
-
-        try {
-
-    // ✅ Check file exists
-    if (pdfDoc == null || pdfDoc.isEmpty()) {
-        return ResponseEntity.badRequest().body("PDF File is required!");
-    }
-
-    // ✅ Safe Content-Type Check
-    String contentType = pdfDoc.getContentType();
-
-    if (contentType == null || !contentType.equalsIgnoreCase("application/pdf")) {
-        return ResponseEntity.badRequest().body("Only PDF files are allowed!");
-    }
-
-    // ✅ Save PDF
-    Pdf pdf = new Pdf(
-            title,
-            volume,
-            issueNo,
-            pubYear,
-            issueType,
-            author,
-            doi,
-            source,
-            pdfDoc.getBytes()
-    );
-
-    Pdf savedPdf = pdfService.savePdf(pdf);
-
-    return ResponseEntity.ok(savedPdf);
-
-} catch (IOException e) {
-    return ResponseEntity.status(500).body("File Upload Failed: " + e.getMessage());
-
-} catch (Exception e) {
-    return ResponseEntity.status(500).body("Unexpected Error: " + e.getMessage());
-}
-
-
-    }
-
-    // =====================================================
-    // ✅ 2. Get All PDFs
-    // =====================================================
-    @GetMapping
-    public ResponseEntity<List<Pdf>> getAllPdfs() {
-        return ResponseEntity.ok(pdfService.getAllPdfs());
-    }
-
-    // =====================================================
-    // ✅ 3. Get PDF by ID
-    // =====================================================
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getPdfById(@PathVariable Long id) {
-        try {
-            return ResponseEntity.ok(pdfService.getPdfById(id));
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(404).body("PDF Not Found with ID: " + id);
+        if (filename == null || !filename.toLowerCase().endsWith(".pdf")) {
+            return ResponseEntity.badRequest().body("Only PDF files allowed!");
         }
+
+        Pdf pdf = new Pdf(
+                title,
+                volume,
+                issueNo,
+                pubYear,
+                issueType,
+                author,
+                doi,
+                source,
+                pdfDoc.getBytes()
+        );
+
+        return ResponseEntity.ok(service.save(pdf));
     }
 
-    // =====================================================
-    // ✅ 4. VIEW PDF in Browser (INLINE)
-    // =====================================================
+    // ✅ Get All PDFs
+    @GetMapping
+    public List<Pdf> getAll() {
+        return service.getAll();
+    }
+
+    // ✅ View PDF
     @GetMapping("/view/{id}")
-    public ResponseEntity<byte[]> viewPdf(@PathVariable Long id) {
-        Pdf pdf = pdfService.getPdfById(id);
+    public ResponseEntity<byte[]> view(@PathVariable Long id) {
+
+        Pdf pdf = service.getById(id);
 
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION,
-                        "inline; filename=\"" + pdf.getTitle() + ".pdf\"") // ✅ INLINE view
                 .contentType(MediaType.APPLICATION_PDF)
+                .header("Content-Disposition",
+                        "inline; filename=" + pdf.getTitle() + ".pdf")
                 .body(pdf.getPdfDoc());
     }
 
-    // =====================================================
-    // ✅ 5. Update PDF Metadata + Optional File
-    // =====================================================
-    @PutMapping(value = "/update/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> updatePdf(
-            @PathVariable Long id,
-            @RequestParam("volume") String volume,
-            @RequestParam("issueNo") String issueNo,
-            @RequestParam("pubYear") String pubYear,
-            @RequestParam("issueType") String issueType,
-            @RequestParam("author") String author,
-            @RequestParam("doi") String doi,
-            @RequestParam("source") String source,
-            @RequestParam(value = "pdf_doc", required = false) MultipartFile pdfDoc
-    ) {
-        try {
-            Pdf updated = pdfService.updatePdf(id, volume, issueNo, pubYear, issueType, author, doi, source, pdfDoc);
-            return ResponseEntity.ok(updated);
-        } catch (IOException e) {
-            return ResponseEntity.status(500).body("Update Failed: " + e.getMessage());
-        }
+    // ✅ Delete PDF
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> delete(@PathVariable Long id) {
+        service.delete(id);
+        return ResponseEntity.ok("Deleted Successfully");
     }
 
-    // =====================================================
-    // ✅ 6. Delete PDF
-    // =====================================================
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> deletePdf(@PathVariable Long id) {
-        try {
-            pdfService.deletePdf(id);
-            return ResponseEntity.ok("PDF Deleted Successfully!");
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body("Delete Failed: " + e.getMessage());
-        }
+
+    @PutMapping(value="/update/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+public ResponseEntity<?> updatePdf(
+        @PathVariable Long id,
+        @RequestParam("title") String title,
+        @RequestParam("volume") String volume,
+        @RequestParam("issue_no") String issueNo,
+        @RequestParam("pub_year") String pubYear,
+        @RequestParam("issue_type") String issueType,
+        @RequestParam("author") String author,
+        @RequestParam("doi") String doi,
+        @RequestParam("source") String source,
+        @RequestParam(value="pdf_doc", required=false) MultipartFile pdfDoc
+) throws IOException {
+
+    Pdf existing = service.getById(id);
+
+    existing.setTitle(title);
+    existing.setVolume(volume);
+    existing.setIssueNo(issueNo);
+    existing.setPubYear(pubYear);
+    existing.setIssueType(issueType);
+    existing.setAuthor(author);
+    existing.setDoi(doi);
+    existing.setSource(source);
+
+    // ✅ Replace file only if uploaded
+    if (pdfDoc != null && !pdfDoc.isEmpty()) {
+        existing.setPdfDoc(pdfDoc.getBytes());
     }
+
+    return ResponseEntity.ok(service.save(existing));
+}
+
 }

@@ -17,26 +17,32 @@ public class Pdf {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable=false)
     private String title;
 
     private String volume;
+
+    @Column(name="issue_no")
     private String issueNo;
+
+    @Column(name="pub_year")
     private String pubYear;
+
+    @Column(name="issue_type")
     private String issueType;
+
+    @Column(name="author")
     private String author;
+
+    @Column(nullable=false)
     private String doi;
+
+    @Column(nullable=false)
     private String source;
 
-
     @Lob
-@Column(name="pdf_doc", columnDefinition="LONGBLOB", nullable=false)
-private byte[] pdfDoc;
-
-
-    // @Lob
-    // @Column(columnDefinition = "LONGBLOB", nullable = false)
-    // private byte[] pdfDoc;
+    @Column(name="pdf_doc", columnDefinition="LONGBLOB", nullable=false)
+    private byte[] pdfDoc;
 
     public Pdf() {}
 
@@ -55,6 +61,7 @@ private byte[] pdfDoc;
         this.source = source;
         this.pdfDoc = pdfDoc;
     }
+
 
     // Getters & Setters
 
